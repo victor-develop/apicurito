@@ -33,6 +33,18 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Fix Manifest Scope
+        uses: jossef/action-set-json-field@v1
+        with:
+          file: apicurito/ui/dist/manifest.json
+          field: scope
+          value: /apicurito/
+      - name: Fix Manifest Start Url
+        uses: jossef/action-set-json-field@v1
+        with:
+          file: apicurito/ui/dist/manifest.json
+          field: start_url
+          value: /apicurito/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
