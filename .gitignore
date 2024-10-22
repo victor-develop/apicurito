@@ -5,6 +5,7 @@
 node_modules
 .idea
 node/
+dist/
 target/
 bindata_assetfs.go
 /ui/cmd/go-bindata
