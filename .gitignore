@@ -4,7 +4,6 @@
 .project
 node_modules
 .idea
-dist/
 node/
 target/
 bindata_assetfs.go
