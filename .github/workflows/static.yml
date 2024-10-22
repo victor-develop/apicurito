@@ -36,13 +36,13 @@ jobs:
       - name: Fix Manifest Scope
         uses: jossef/action-set-json-field@v1
         with:
-          file: apicurito/ui/dist/manifest.json
+          file: apicurito/ui/docs/manifest.json
           field: scope
           value: /apicurito/
       - name: Fix Manifest Start Url
         uses: jossef/action-set-json-field@v1
         with:
-          file: apicurito/ui/dist/manifest.json
+          file: apicurito/ui/docs/manifest.json
           field: start_url
           value: /apicurito/
       - name: Upload artifact
