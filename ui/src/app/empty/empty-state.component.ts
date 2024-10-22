@@ -15,122 +15,131 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, EventEmitter, Output, ViewChild} from "@angular/core";
-import {NewApiTemplates} from "./empty-state.data";
-import {StorageService} from "../services/storage.service";
-import {ApiDefinitionFileService} from "../services/api-definition-file.service";
-import {ApiDefinition} from "apicurio-design-studio";
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Output,
+  ViewChild,
+} from "@angular/core";
+import { NewApiTemplates } from "./empty-state.data";
+import { StorageService } from "../services/storage.service";
+import { ApiDefinitionFileService } from "../services/api-definition-file.service";
+import { ApiDefinition } from "apicurio-design-studio";
+import { ApiService } from "../services/api.service";
 
 @Component({
-    moduleId: module.id,
-    selector: "empty-state",
-    templateUrl: "empty-state.component.html",
-    styleUrls: [ "empty-state.component.css" ]
+  moduleId: module.id,
+  selector: "empty-state",
+  templateUrl: "empty-state.component.html",
+  styleUrls: ["empty-state.component.css"],
 })
 export class EmptyStateComponent {
+  @ViewChild("loadfile") loadFileRef: ElementRef<HTMLInputElement>;
 
-    @ViewChild('loadfile') loadFileRef: ElementRef<HTMLInputElement>;
+  @Output() onOpen: EventEmitter<any> = new EventEmitter<any>();
 
-    @Output() onOpen: EventEmitter<any> = new EventEmitter<any>();
+  dragging: boolean;
+  error: string = null;
+  templates: NewApiTemplates = new NewApiTemplates();
 
-    dragging: boolean;
-    error: string = null;
-    templates: NewApiTemplates = new NewApiTemplates();
+  constructor(
+    private storage: StorageService,
+    private apiDefinitionFile: ApiDefinitionFileService,
+    private apiService: ApiService
+  ) {}
 
-    constructor(private storage: StorageService, private apiDefinitionFile: ApiDefinitionFileService) {}
+  public hasRecoverableApi(): boolean {
+    return this.storage.exists();
+  }
 
-    public hasRecoverableApi(): boolean {
-        return this.storage.exists();
+  public reoverApi(): void {
+    console.info(
+      "[EmptyStateComponent] Recovering an API definition that was in-progress"
+    );
+    // let apiDef: ApiDefinition = this.storage.recover();
+    // let api: any = apiDef.spec;
+    this.apiService.recover();
+    this.onOpen.emit(this.apiService.definition.spec);
+  }
+
+  public createNewApi(version: string = "3.0.2"): void {
+    this.error = null;
+    this.apiService.createNewApi(version);
+    this.onOpen.emit(this.apiService.definition.spec);
+  }
+
+  public openExistingApi(): void {
+    this.error = null;
+
+    if (this.apiDefinitionFile.fileSystemAccessApiAvailable) {
+      this.loadFile();
+    } else {
+      this.loadFileRef.nativeElement.click();
+    }
+  }
+
+  public onFileOpened(event: Event): void {
+    this.error = null;
+
+    const file: File = (event.target as HTMLInputElement).files[0];
+    const fileFormat = ApiDefinitionFileService.getFileFormat(file);
+
+    if (!fileFormat) {
+      this.error = "Only JSON and YAML files are supported.";
+      return;
     }
 
-    public reoverApi(): void {
-        console.info("[EmptyStateComponent] Recovering an API definition that was in-progress");
-        let apiDef: ApiDefinition = this.storage.recover();
-        let api: any = apiDef.spec;
-        this.onOpen.emit(api);
+    this.loadFile(file);
+  }
+
+  public async loadFile(file?: File | FileSystemFileHandle): Promise<void> {
+    this.error = null;
+
+    try {
+      const spec = await this.apiDefinitionFile.load(file);
+      this.onOpen.emit(spec);
+    } catch (e) {
+      console.log(e);
+      this.error = e.message;
+    }
+  }
+
+  public onDragOver(event: DragEvent): void {
+    if (!this.dragging) {
+      this.dragging = true;
+    }
+    event.preventDefault();
+  }
+
+  public async onDrop(event: DragEvent): Promise<void> {
+    this.dragging = false;
+    event.preventDefault();
+
+    const items: DataTransferItemList = event.dataTransfer.items;
+    if (!items || items.length < 1) {
+      return;
     }
 
-    public createNewApi(version: string = "3.0.2"): void {
-        this.error = null;
-        let api: any = JSON.parse(this.templates.EMPTY_API_30);
-        if (version == "2.0") {
-            api = JSON.parse(this.templates.EMPTY_API_20);
-        }
-        this.onOpen.emit(api);
+    const item = items[0];
+    let file: FileSystemFileHandle | File;
+    if (this.apiDefinitionFile.fileSystemAccessApiAvailable) {
+      const fileHandle = await item.getAsFileSystemHandle();
+      if (fileHandle.kind === "file") {
+        file = fileHandle;
+      }
+    } else {
+      file = item.getAsFile();
     }
 
-    public openExistingApi(): void {
-        this.error = null;
-
-        if (this.apiDefinitionFile.fileSystemAccessApiAvailable) {
-            this.loadFile();
-        } else {
-            this.loadFileRef.nativeElement.click();
-        }
+    if (file) {
+      await this.loadFile(file);
+    } else {
+      this.error = "Only files are supported.";
     }
+  }
 
-    public onFileOpened(event: Event): void {
-        this.error = null;
-
-        const file: File = (event.target as HTMLInputElement).files[0];
-        const fileFormat = ApiDefinitionFileService.getFileFormat(file);
-
-        if (!fileFormat) {
-            this.error = "Only JSON and YAML files are supported.";
-            return;
-        }
-
-        this.loadFile(file);
-    }
-
-    public async loadFile(file?: File | FileSystemFileHandle): Promise<void> {
-        this.error = null;
-
-        try {
-            const spec = await this.apiDefinitionFile.load(file);
-            this.onOpen.emit(spec);
-        } catch (e) {
-            console.log(e);
-            this.error = e.message;
-        }
-    }
-
-    public onDragOver(event: DragEvent): void {
-        if (!this.dragging) {
-            this.dragging = true;
-        }
-        event.preventDefault();
-    }
-
-    public async onDrop(event: DragEvent): Promise<void> {
-        this.dragging = false;
-        event.preventDefault();
-
-        const items: DataTransferItemList = event.dataTransfer.items;
-        if (!items || items.length < 1) {
-            return;
-        }
-
-        const item = items[0];
-        let file: FileSystemFileHandle | File;
-        if (this.apiDefinitionFile.fileSystemAccessApiAvailable) {
-            const fileHandle = await item.getAsFileSystemHandle()
-            if (fileHandle.kind === "file") {
-                file = fileHandle;
-            }
-        } else {
-            file = item.getAsFile();
-        }
-
-        if (file) {
-            await this.loadFile(file);
-        } else {
-            this.error = "Only files are supported.";
-        }
-    }
-
-    public onDragEnd(event: DragEvent): void {
-        this.dragging = false;
-    }
-
+  public onDragEnd(event: DragEvent): void {
+    this.dragging = false;
+  }
 }
