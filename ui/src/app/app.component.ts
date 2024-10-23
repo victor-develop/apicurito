@@ -15,64 +15,70 @@
  * limitations under the License.
  */
 
-import {Component, OnInit} from '@angular/core';
-import {ApiDefinition} from 'apicurio-design-studio';
-import {WindowRef} from './services/window-ref.service';
-import {AppInfoService} from "./services/app-info.service";
-import {environment} from '../environments/environment';
-import { CrossNavApp, getAvailableApps, getSolutionExplorerServer } from '@rh-uxd/integration-core';
+import { Component, OnInit } from "@angular/core";
+import { ApiDefinition } from "apicurio-design-studio";
+import { WindowRef } from "./services/window-ref.service";
+import { AppInfoService } from "./services/app-info.service";
+import { environment } from "../environments/environment";
+import {
+  CrossNavApp,
+  getAvailableApps,
+  getSolutionExplorerServer,
+} from "@rh-uxd/integration-core";
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.css']
+  selector: "app-root",
+  templateUrl: "./app.component.html",
+  styleUrls: ["./app.component.css"],
 })
 export class AppComponent implements OnInit {
+  helpExpanded: boolean = false;
+  showAbout: boolean = false;
+  crossConsoleExpanded: boolean = false;
+  showCrossConsole: boolean = false;
+  showLogo: boolean = false;
+  apps: CrossNavApp[] = [];
+  apiDef: ApiDefinition = null;
 
-    helpExpanded: boolean = false;
-    showAbout: boolean = false;
-    crossConsoleExpanded: boolean = false;
-    showCrossConsole: boolean = false;
-    showLogo: boolean = false;
-    apps: CrossNavApp[] = [];
-    apiDef: ApiDefinition = null;
+  constructor(private winRef: WindowRef, public appInfo: AppInfoService) {}
 
-    constructor(private winRef: WindowRef, public appInfo: AppInfoService) {
+  public ngOnInit() {
+    getAvailableApps(
+      environment.production
+        ? getSolutionExplorerServer()
+        : "http://localhost:5001",
+      undefined,
+      environment.production ? undefined : "localhost:3006",
+      ["apicurito"],
+      !!environment.production
+    ).then((apps) => {
+      if (apps.length > 0) {
+        this.apps = apps;
+        this.showCrossConsole = true;
+      } else {
+        this.showLogo = true;
+      }
+    });
+  }
+
+  public navigate(url: string): void {
+    const appUrl = !!environment.production
+      ? `https://${url}`
+      : `http://${url}`;
+    window.location.href = appUrl;
+  }
+
+  public openEditor(content: any): void {
+    this.apiDef = new ApiDefinition();
+    this.apiDef.createdBy = "user";
+    this.apiDef.createdOn = new Date();
+    this.apiDef.tags = [];
+    this.apiDef.description = "";
+    this.apiDef.id = "api-1";
+    this.apiDef.spec = content;
+    this.apiDef.type = "OpenAPI30";
+    if (content && content.swagger && content.swagger == "2.0") {
+      this.apiDef.type = "OpenAPI20";
     }
-
-    public ngOnInit () {
-        getAvailableApps(
-            environment.production ? getSolutionExplorerServer() : 'http://localhost:5001',
-            undefined,
-            environment.production  ? undefined : 'localhost:3006',
-            ['apicurito'],
-            !!environment.production 
-          ).then(apps => {
-              if (apps.length > 0) {
-                this.apps = apps;
-                this.showCrossConsole = true;
-              } else {
-                this.showLogo = true;
-              }
-          });
-    }
-
-    public navigate(url: string): void {
-        const appUrl = !!environment.production ? `https://${url}` : `http://${url}`
-        window.location.href = appUrl;
-    }
-
-    public openEditor(content: any): void {
-        this.apiDef = new ApiDefinition();
-        this.apiDef.createdBy = 'user';
-        this.apiDef.createdOn = new Date();
-        this.apiDef.tags = [];
-        this.apiDef.description = '';
-        this.apiDef.id = 'api-1';
-        this.apiDef.spec = content;
-        this.apiDef.type = "OpenAPI30";
-        if (content && content.swagger && content.swagger == "2.0") {
-            this.apiDef.type = "OpenAPI20";
-        }
-    }
+  }
 }

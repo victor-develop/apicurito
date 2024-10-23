@@ -15,52 +15,62 @@
  * limitations under the License.
  */
 
-import {BrowserModule} from '@angular/platform-browser';
-import {NgModule} from '@angular/core';
-import {ApicurioCommonComponentsModule, ApicurioEditorModule} from 'apicurio-design-studio';
+import { BrowserModule } from "@angular/platform-browser";
+import { NgModule } from "@angular/core";
+import {
+  ApicurioCommonComponentsModule,
+  ApicurioEditorModule,
+} from "apicurio-design-studio";
 
-import {AppComponent} from './app.component';
-import {BsDropdownModule, ModalModule} from 'ngx-bootstrap';
-import {FormsModule} from '@angular/forms';
-import {WindowRef} from './services/window-ref.service';
-import {EmptyStateComponent} from "./empty/empty-state.component";
-import {EditorComponent} from "./editor/editor.component";
-import {DownloaderService} from "./services/downloader.service";
-import {HttpClientModule} from "@angular/common/http";
-import {AppInfoService} from './services/app-info.service';
-import {ConfigService} from './services/config.service';
-import {StorageService} from "./services/storage.service";
-import {ConfigureValidationComponent} from "./editor/configure-validation.dialog";
-import {ApiDefinitionFileService} from './services/api-definition-file.service';
-import {ServiceWorkerModule} from '@angular/service-worker';
-import {environment} from '../environments/environment';
+import { AppComponent } from "./app.component";
+import { BsDropdownModule, ModalModule } from "ngx-bootstrap";
+import { FormsModule } from "@angular/forms";
+import { WindowRef } from "./services/window-ref.service";
+import { EmptyStateComponent } from "./empty/empty-state.component";
+import { EditorComponent } from "./editor/editor.component";
+import { DownloaderService } from "./services/downloader.service";
+import { HttpClientModule } from "@angular/common/http";
+import { AppInfoService } from "./services/app-info.service";
+import { ConfigService } from "./services/config.service";
+import { StorageService } from "./services/storage.service";
+import { ConfigureValidationComponent } from "./editor/configure-validation.dialog";
+import { ApiDefinitionFileService } from "./services/api-definition-file.service";
+import { ServiceWorkerModule } from "@angular/service-worker";
+import { environment } from "../environments/environment";
+import { AppRoutingModule } from "./app-routing.module";
+import { ApiService } from "./services/api.service";
+// import { RouterModule, RouterOutlet, provideRoutes } from "@angular/router";
 
 @NgModule({
-    imports: [
-        BrowserModule,
-        FormsModule,
-        HttpClientModule,
-        ApicurioEditorModule,
-        ApicurioCommonComponentsModule,
-        ModalModule.forRoot(),
-        BsDropdownModule.forRoot(),
-        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
-    ],
-    declarations: [
-        AppComponent, 
-        EmptyStateComponent,
-        EditorComponent,
-        ConfigureValidationComponent
-    ],
-    providers: [
-        WindowRef,
-        AppInfoService,
-        ConfigService,
-        DownloaderService, 
-        StorageService,
-        ApiDefinitionFileService
-    ],
-    bootstrap: [AppComponent]
+  imports: [
+    BrowserModule,
+    FormsModule,
+    HttpClientModule,
+    ApicurioEditorModule,
+    ApicurioCommonComponentsModule,
+    ModalModule.forRoot(),
+    BsDropdownModule.forRoot(),
+    ServiceWorkerModule.register("ngsw-worker.js", {
+      enabled: environment.production,
+    }),
+    AppRoutingModule,
+  ],
+  declarations: [
+    AppComponent,
+    EmptyStateComponent,
+    EditorComponent,
+    ConfigureValidationComponent,
+  ],
+  providers: [
+    WindowRef,
+    AppInfoService,
+    ConfigService,
+    DownloaderService,
+    StorageService,
+    ApiDefinitionFileService,
+    ApiService,
+    // provideRoutes(routes),
+  ],
+  bootstrap: [AppComponent],
 })
-export class AppModule {
-}
+export class AppModule {}
