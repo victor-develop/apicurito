@@ -4,7 +4,7 @@ name: Deploy static content to Pages
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ["spa"]
+    branches: ["gh-pages"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -29,27 +29,36 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      - name: Set up Node.js v16
+        uses: actions/setup-node@v4
+        with:
+          node-version: 16.20.2
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Build Apicurito
+        run: |
+          cd ui
+          yarn install
+          yarn build-gh-pages
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Fix Manifest Scope
         uses: jossef/action-set-json-field@v1
         with:
-          file: ui/docs/manifest.json
+          file: ui/dist/manifest.json
           field: scope
           value: /apicurito/
       - name: Fix Manifest Start Url
         uses: jossef/action-set-json-field@v1
         with:
-          file: ui/docs/manifest.json
+          file: ui/dist/manifest.json
           field: start_url
           value: /apicurito/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
-          path: './ui/docs/'
+          path: './ui/dist/'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
