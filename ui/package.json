@@ -6,7 +6,8 @@
     "ng": "ng",
     "start": "ng serve",
     "gitpod": "ng serve --host 0.0.0.0 --disable-host-check",
-    "build": "ng build --prod"
+    "build": "ng build --prod",
+    "build-gh-pages": "ng build --prod --base-href /apicurito/"
   },
   "private": true,
   "dependencies": {
@@ -48,5 +49,8 @@
     "protractor": "~5.4.0",
     "ts-node": "~7.0.0",
     "typescript": "3.2.4"
+  },
+  "volta": {
+    "node": "16.20.2"
   }
 }

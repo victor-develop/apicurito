@@ -4,9 +4,12 @@
 }
 .pf-c-page .pf-c-page__header {
   background-color: #151515;
+  min-height: 5px !important;
+  max-height: 5px !important;
+
 }
-.pf-c-page__header-brand {
-  width: max-content!important;
+img.pf-c-brand {
+  max-height: 5px !important;
 }
 .pf-c-page .app-context-selector-wrapper {
   grid-column: 2;
