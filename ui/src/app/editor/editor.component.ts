@@ -37,6 +37,8 @@ import {
 } from "apicurio-data-models";
 import { ApiDefinitionFileService } from "../services/api-definition-file.service";
 import { ApiService } from "../services/api.service";
+import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
+import { filter } from "rxjs/operators";
 
 export class DisableValidationRegistry implements IValidationSeverityRegistry {
   public lookupSeverity(): ValidationProblemSeverity {
@@ -68,6 +70,7 @@ export class EditorComponent implements OnInit {
   validation: IValidationSeverityRegistry = null;
 
   converting: boolean = false;
+  currentUrl: string = "";
 
   /**
    * Constructor.
@@ -80,12 +83,19 @@ export class EditorComponent implements OnInit {
     public config: ConfigService,
     private storage: StorageService,
     public apiDefinitionFile: ApiDefinitionFileService,
-    public apiService: ApiService
+    public apiService: ApiService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.apiService.recover();
     this.api = this.apiService.definition;
+    // 监听路由事件
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        this.currentUrl = event.urlAfterRedirects;
+      });
   }
 
   /**
@@ -103,6 +113,11 @@ export class EditorComponent implements OnInit {
       this.storage.store(this.apiEditor.getValue());
       this.persistenceTimeout = null;
     }, 5000);
+  }
+
+  public selectInput(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    inputElement.select();
   }
 
   /**
