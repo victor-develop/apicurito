@@ -112,7 +112,7 @@ export class EditorComponent implements OnInit {
     this.persistenceTimeout = setTimeout(() => {
       this.storage.store(this.apiEditor.getValue());
       this.persistenceTimeout = null;
-    }, 5000);
+    }, 100);
   }
 
   public selectInput(event: Event): void {
