@@ -94,7 +94,7 @@ export class EditorComponent implements OnInit {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        this.currentUrl = event.urlAfterRedirects;
+        this.currentUrl = window.location.href;
       });
   }
 
