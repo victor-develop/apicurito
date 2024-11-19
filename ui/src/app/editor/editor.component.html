@@ -1,4 +1,7 @@
 <div class="app-editor" id="app-editor">
+    <div>
+        <input class="form-control" placeholder="Persisted url state" readonly [value]="currentUrl"  (click)="selectInput($event)">
+    </div>
     <div class="actionbar">
         <!-- Save Button -->
         <div *ngIf="apiDefinitionFile.hasFileHandle; then hasFileHandle else noFileHandle"></div>
