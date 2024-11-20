@@ -2,20 +2,20 @@
     <div>
         <input class="form-control" placeholder="Persisted url state" readonly [value]="currentUrl"  (click)="selectInput($event)">
     </div>
-    <div class="actionbar">
+    <div *ngIf="isNotInIframe()" class="actionbar">
         <!-- Save Button -->
         <div *ngIf="apiDefinitionFile.hasFileHandle; then hasFileHandle else noFileHandle"></div>
         <ng-template #hasFileHandle>
             <div class="btn-group">
-                <button type="button" class="btn btn-lg btn-primary" (click)="save('save')">Save</button>
-                <button type="button" class="btn btn-lg btn-primary btn-save" (click)="save('save-as')">Save
+                <button type="button" class="btn btn-sm btn-primary" (click)="save('save')">Save</button>
+                <button type="button" class="btn btn-sm btn-primary btn-save" (click)="save('save-as')">Save
                 As...</button>
             </div>
         </ng-template>
         <ng-template #noFileHandle>
             <div class="btn-group">
-                <button type="button" class="btn btn-lg btn-primary" (click)="save('save-as')">Save As...</button>
-                <button type="button" class="btn btn-lg btn-primary dropdown-toggle btn-save" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button *ngIf="isNotInIframe()" type="button" class="btn btn-sm btn-primary" (click)="save('save-as')">Save As...</button>
+                <button *ngIf="isNotInIframe()" type="button" class="btn btn-sm btn-primary dropdown-toggle btn-save" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="caret"></span>
                     <span class="sr-only">Toggle Dropdown</span>
                 </button>
@@ -28,25 +28,13 @@
         </ng-template>
 
         <!-- Convert Button -->
-        <button *ngIf="isOpenAPI2()" class="btn btn-lg btn-default btn-convert" data-toggle="modal" data-target="#convert-modal">Convert to OpenAPI 3</button>
+        <button *ngIf="isOpenAPI2()" class="btn btn-xs btn-default btn-convert" data-toggle="modal" data-target="#convert-modal">Convert to OpenAPI 3</button>
 
         <!-- Close Button -->
-        <button class="btn btn-lg btn-default btn-close" data-toggle="modal" data-target="#close-modal">Close</button>
+        <button *ngIf="isNotInIframe()" class="btn btn-xs btn-default btn-close" data-toggle="modal" data-target="#close-modal">Close</button>
         <span class="vertical-divider"></span>
 
-        <!-- Generate Project Button -->
-        <div class="btn-group dropdown" dropdown>
-            <button type="button" class="btn btn-lg btn-default dropdown-toggle" dropdownToggle>
-                <span *ngIf="!generating">
-                    <span>Generate</span>
-                </span>
-                <span *ngIf="generating"><span class="spinner spinner-xs spinner-inline"></span> Generating</span>
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-right" *dropdownMenu>
-                <li *ngFor="let g of config.generators"><a (click)="generate(g)">{{ g.name }}</a></li>
-            </ul>
-        </div>
+
     </div>
     <div class="editor" *ngIf="!converting">
         <api-editor #apiEditor [api]="api" [embedded]="true" (onCommandExecuted)="documentChanged()"

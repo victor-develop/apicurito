@@ -90,11 +90,15 @@ export class EditorComponent implements OnInit {
   ngOnInit(): void {
     this.apiService.recover();
     this.api = this.apiService.definition;
+        // hide component with class .editor-title-bar
+        
     // 监听路由事件
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         this.currentUrl = window.location.href;
+            // turn component with class .editor-title-bar into display none
+        document.querySelector(".editor-title-bar").classList.add("d-none");
       });
   }
 
@@ -244,5 +248,13 @@ export class EditorComponent implements OnInit {
     console.info(this.apiService.definition.type);
     // return this.api.type == "OpenAPI20";
     return this.apiService.definition.type == "OpenAPI20";
+  }
+
+  public isNotInIframe(): boolean {
+    try {
+      return window.self === window.top;
+    } catch (e) {
+      return false;
+    }
   }
 }
