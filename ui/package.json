@@ -9,6 +9,9 @@
     "build": "ng build --prod",
     "build-gh-pages": "ng build --prod --base-href /apicurito/"
   },
+  "engines": {
+    "node": "16.20.2"
+  },
   "private": true,
   "dependencies": {
     "@angular/animations": "7.2.6",
